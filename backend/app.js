@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors");
+// CORS removed as requested
 const { PythonShell } = require("python-shell");
 const path = require("path");
 const fs = require("fs");
@@ -15,31 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl requests)
-      if (!origin) return callback(null, true);
-
-      const allowedOrigins = [
-        "http://localhost:5173", // Vite dev server
-        "http://localhost:3000", // Alternative local development
-        process.env.FRONTEND_URL || "https://placement-predictor.vercel.app", // Production frontend with fallback
-      ];
-
-      console.log("CORS: Allowed origins:", allowedOrigins);
-      console.log("CORS: Request origin:", origin);
-
-      if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST"],
-    credentials: true,
-  })
-);
+// CORS middleware removed as requested
 app.use(express.json());
 
 // Get available models

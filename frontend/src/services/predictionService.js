@@ -5,13 +5,16 @@ const PROD_API_URL = import.meta.env.VITE_API_URL;
 // Function to check if localhost is available
 const checkLocalhost = async () => {
   try {
-    const response = await fetch(`${LOCAL_API_URL}/health`, { 
-      method: 'GET',
-      signal: AbortSignal.timeout(2000) // Timeout after 2 seconds
+    const response = await fetch(`${LOCAL_API_URL}/health`, {
+      method: "GET",
+      signal: AbortSignal.timeout(2000), // Timeout after 2 seconds
     });
     return response.ok;
   } catch (error) {
-    console.log("Localhost not available, using production API:", error.message);
+    console.log(
+      "Localhost not available, using production API:",
+      error.message
+    );
     return false;
   }
 };
@@ -22,7 +25,7 @@ let API_URL = null;
 // Initialize API URL
 const initApiUrl = async () => {
   if (API_URL !== null) return API_URL;
-  
+
   const isLocalhostAvailable = await checkLocalhost();
   API_URL = isLocalhostAvailable ? LOCAL_API_URL : PROD_API_URL;
   console.log(`Using API URL: ${API_URL}`);
@@ -66,7 +69,7 @@ export const predictPlacement = async (formData) => {
     // Add error handling for network issues
     try {
       const apiUrl = await initApiUrl();
-      
+
       // Send the form data to the backend API
       const response = await fetch(`${apiUrl}/predict`, {
         method: "POST",

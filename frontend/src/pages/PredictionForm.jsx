@@ -47,7 +47,7 @@ const PredictionForm = () => {
         setIsLoadingModels(true);
         const models = await getAvailableModels();
         setAvailableModels(models);
-        
+
         // Remove the automatic model selection
         // Let the user explicitly choose a model
       } catch (error) {
