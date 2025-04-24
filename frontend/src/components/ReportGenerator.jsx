@@ -7,7 +7,9 @@ const ReportGenerator = () => {
     predictionData,
     probability,
     studentData,
-    action
+    action,
+    modelName,
+    modelAccuracy
   ) => {
     try {
       // Get the report container element
@@ -40,39 +42,40 @@ const ReportGenerator = () => {
       });
 
       // Update loading toast
-      toast.update(loadingToast, { 
-        render: action === "print" ? "Preparing print preview..." : "Creating PDF...", 
-        type: "info", 
-        isLoading: true 
+      toast.update(loadingToast, {
+        render:
+          action === "print" ? "Preparing print preview..." : "Creating PDF...",
+        type: "info",
+        isLoading: true,
       });
 
       if (action === "print") {
         // For printing, create a temporary iframe in the current page
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
-        
+        const iframe = document.createElement("iframe");
+        iframe.style.position = "fixed";
+        iframe.style.right = "0";
+        iframe.style.bottom = "0";
+        iframe.style.width = "0";
+        iframe.style.height = "0";
+        iframe.style.border = "0";
+
         document.body.appendChild(iframe);
-        
+
         // Create the document structure using DOM methods instead of document.write
         const iframeDoc = iframe.contentWindow.document;
-        
+
         // Create HTML elements
-        const htmlEl = iframeDoc.createElement('html');
-        const headEl = iframeDoc.createElement('head');
-        const bodyEl = iframeDoc.createElement('body');
-        
+        const htmlEl = iframeDoc.createElement("html");
+        const headEl = iframeDoc.createElement("head");
+        const bodyEl = iframeDoc.createElement("body");
+
         // Create and set title
-        const titleEl = iframeDoc.createElement('title');
-        titleEl.textContent = 'Placement Prediction Report';
+        const titleEl = iframeDoc.createElement("title");
+        titleEl.textContent = "Placement Prediction Report";
         headEl.appendChild(titleEl);
-        
+
         // Create and set styles
-        const styleEl = iframeDoc.createElement('style');
+        const styleEl = iframeDoc.createElement("style");
         styleEl.textContent = `
           body {
             margin: 0;
@@ -98,54 +101,54 @@ const ReportGenerator = () => {
           }
         `;
         headEl.appendChild(styleEl);
-        
+
         // Create container and image
-        const containerEl = iframeDoc.createElement('div');
-        containerEl.className = 'report-container';
-        
-        const imgEl = iframeDoc.createElement('img');
+        const containerEl = iframeDoc.createElement("div");
+        containerEl.className = "report-container";
+
+        const imgEl = iframeDoc.createElement("img");
         imgEl.src = canvas.toDataURL("image/png");
         imgEl.alt = "Placement Prediction Report";
-        
+
         // Assemble the document
         containerEl.appendChild(imgEl);
         bodyEl.appendChild(containerEl);
         htmlEl.appendChild(headEl);
         htmlEl.appendChild(bodyEl);
-        
+
         // Add the document structure to the iframe
         iframeDoc.open();
         iframeDoc.appendChild(htmlEl);
         iframeDoc.close();
-        
+
         // Wait for iframe to load before printing
         setTimeout(() => {
           try {
             iframe.contentWindow.focus();
             iframe.contentWindow.print();
-            
+
             // Remove iframe after printing (or after a timeout)
             setTimeout(() => {
               document.body.removeChild(iframe);
-              
+
               // Update toast
-              toast.update(loadingToast, { 
-                render: "Print preview ready!", 
-                type: "success", 
+              toast.update(loadingToast, {
+                render: "Print preview ready!",
+                type: "success",
                 isLoading: false,
-                autoClose: 3000
+                autoClose: 3000,
               });
             }, 1000);
           } catch (err) {
-            console.error('Print error:', err);
+            console.error("Print error:", err);
             document.body.removeChild(iframe);
-            
+
             // Update toast with error
-            toast.update(loadingToast, { 
-              render: "Error printing report. Please try again.", 
-              type: "error", 
+            toast.update(loadingToast, {
+              render: "Error printing report. Please try again.",
+              type: "error",
               isLoading: false,
-              autoClose: 5000
+              autoClose: 5000,
             });
           }
         }, 500);
@@ -194,23 +197,26 @@ const ReportGenerator = () => {
           }
         }
 
-        // Generate filename with current date
-        const fileName = `placement_prediction_${new Date()
+        // Generate filename with current date and model info
+        const modelInfo = modelName ? `_${modelName}` : "";
+        const fileName = `placement_prediction${modelInfo}_${new Date()
           .toISOString()
           .slice(0, 10)}.pdf`;
         pdf.save(fileName);
-        
+
         // Update toast
-        toast.update(loadingToast, { 
-          render: "PDF downloaded successfully!", 
-          type: "success", 
+        toast.update(loadingToast, {
+          render: "PDF downloaded successfully!",
+          type: "success",
           isLoading: false,
-          autoClose: 3000
+          autoClose: 3000,
         });
       }
     } catch (error) {
       console.error("Error generating report:", error);
-      toast.error("There was an error generating the report. Please try again.");
+      toast.error(
+        "There was an error generating the report. Please try again."
+      );
     }
   };
 

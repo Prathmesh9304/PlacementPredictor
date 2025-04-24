@@ -2,12 +2,15 @@ import React, { useRef, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { FaArrowLeft, FaRedo, FaPrint, FaDownload } from "react-icons/fa";
 import ReportGenerator from "../components/ReportGenerator";
+import { MODEL_INFO } from "../services/predictionService";
 
 const Results = () => {
   const location = useLocation();
   const prediction = location.state?.prediction;
   const probability = location.state?.probability;
   const studentData = location.state?.formData;
+  const modelName = location.state?.model;
+  const modelAccuracy = location.state?.accuracy;
   const isMounted = useRef(true);
 
   // Create report generator instance
@@ -33,13 +36,29 @@ const Results = () => {
     return prob ? (prob * 100).toFixed(2) + "%" : "N/A";
   };
 
+  const formatAccuracy = (acc) => {
+    if (!acc && modelName && MODEL_INFO[modelName]) {
+      return (MODEL_INFO[modelName].accuracy * 100).toFixed(2) + "%";
+    }
+    return acc ? (acc * 100).toFixed(2) + "%" : "N/A";
+  };
+
+  const getModelDisplayName = () => {
+    if (modelName && MODEL_INFO[modelName]) {
+      return MODEL_INFO[modelName].name;
+    }
+    return modelName || "Machine Learning Model";
+  };
+
   // Print function that uses the ReportGenerator
   const handlePrint = () => {
     reportGeneratorInstance.generateReport(
       prediction,
       probability,
       studentData,
-      "print"
+      "print",
+      modelName,
+      modelAccuracy
     );
   };
 
@@ -49,7 +68,9 @@ const Results = () => {
       prediction,
       probability,
       studentData,
-      "download"
+      "download",
+      modelName,
+      modelAccuracy
     );
   };
 
@@ -125,6 +146,10 @@ const Results = () => {
               Placement Prediction Report
             </h2>
             <p className="text-gray-600 mt-2">Generated on {formatDate()}</p>
+            <p className="text-gray-600 mt-1">
+              Using <span className="font-medium">{getModelDisplayName()}</span>{" "}
+              with accuracy {formatAccuracy(modelAccuracy)}
+            </p>
           </div>
 
           <div className="mb-8">
@@ -287,7 +312,8 @@ const Results = () => {
               historical student placement data.
             </p>
             <p>
-              The model has an accuracy of approximately 89% based on test data.
+              The {getModelDisplayName()} has an accuracy of{" "}
+              {formatAccuracy(modelAccuracy)} based on test data.
             </p>
             <p className="mt-2">
               © {new Date().getFullYear()} Placement Predictor

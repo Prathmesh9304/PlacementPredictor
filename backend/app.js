@@ -2,15 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const { PythonShell } = require("python-shell");
 const path = require("path");
+const fs = require("fs");
 // Add dotenv to load environment variables
 const dotenv = require("dotenv");
 
-// Load environment variables from .env file
-// In production, this will load from .env.production
+// Load environment variables from single .env file
 dotenv.config({
-  path: process.env.NODE_ENV === "production" 
-    ? path.join(__dirname, ".env.production") 
-    : path.join(__dirname, ".env")
+  path: path.join(__dirname, ".env"),
 });
 
 const app = express();
@@ -28,7 +26,7 @@ app.use(
         "http://localhost:3000", // Alternative local development
         process.env.FRONTEND_URL || "https://placement-predictor.vercel.app", // Production frontend with fallback
       ];
-      
+
       console.log("CORS: Allowed origins:", allowedOrigins);
       console.log("CORS: Request origin:", origin);
 
@@ -44,10 +42,47 @@ app.use(
 );
 app.use(express.json());
 
+// Get available models
+const getAvailableModels = () => {
+  try {
+    const modelDir = path.join(__dirname, "model");
+    const files = fs.readdirSync(modelDir);
+    const models = files
+      .filter(
+        (file) =>
+          file.startsWith("placement_predictor_") && file.endsWith(".pkl")
+      )
+      .map((file) =>
+        file.replace("placement_predictor_", "").replace(".pkl", "")
+      );
+    return models;
+  } catch (error) {
+    console.error("Error getting available models:", error);
+    return [];
+  }
+};
+
 // API endpoint for prediction
 app.post("/api/predict", (req, res) => {
   try {
     console.log("Received prediction request:", req.body);
+
+    // Check if model name is provided
+    if (!req.body.modelName) {
+      return res.status(400).json({
+        error: "No model name provided",
+        available_models: getAvailableModels(),
+      });
+    }
+
+    // Check if the requested model exists
+    const availableModels = getAvailableModels();
+    if (!availableModels.includes(req.body.modelName)) {
+      return res.status(404).json({
+        error: `Model '${req.body.modelName}' not found`,
+        available_models: availableModels,
+      });
+    }
 
     // Convert request body to Python-friendly format
     const options = {
@@ -62,6 +97,12 @@ app.post("/api/predict", (req, res) => {
         console.log("Python script results:", results);
 
         if (results && results.length > 0) {
+          // Check if there's an error in the results
+          const errorResults = results.filter((result) => result.error);
+          if (errorResults.length > 0) {
+            return res.status(500).json(errorResults[errorResults.length - 1]);
+          }
+
           // The last result contains our prediction
           const predictionResult = results[results.length - 1];
           return res.json(predictionResult);
@@ -86,6 +127,20 @@ app.post("/api/predict", (req, res) => {
   }
 });
 
+// API endpoint to get available models
+app.get("/api/models", (req, res) => {
+  try {
+    const models = getAvailableModels();
+    if (models.length === 0) {
+      return res.status(404).json({ error: "No models found" });
+    }
+    res.json({ models: models });
+  } catch (error) {
+    console.error("Error fetching models:", error);
+    res.status(500).json({ error: "Failed to fetch available models" });
+  }
+});
+
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Backend server is running" });
@@ -105,4 +160,5 @@ app.listen(PORT, () => {
   console.log(
     `[INFO] API endpoint available at http://localhost:${PORT}/api/predict\n`
   );
+  console.log(`[INFO] Available models: ${getAvailableModels().join(", ")}\n`);
 });
