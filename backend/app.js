@@ -1,10 +1,11 @@
 const express = require("express");
-// CORS removed as requested
 const { PythonShell } = require("python-shell");
 const path = require("path");
 const fs = require("fs");
 // Add dotenv to load environment variables
 const dotenv = require("dotenv");
+// Import the CORS middleware
+const corsMiddleware = require("./middleware/cors");
 
 // Load environment variables from single .env file
 dotenv.config({
@@ -16,45 +17,8 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-
-// Add CORS headers middleware
-app.use((req, res, next) => {
-  // Define allowed origins - prioritize environment variables and localhost
-  const allowedOrigins = [
-    "http://localhost:5173", // Vite dev server
-    "http://localhost:3000", // Alternative local development
-  ];
-
-  // Add frontend URL from environment if available
-  if (process.env.FRONTEND_URL) {
-    allowedOrigins.push(process.env.FRONTEND_URL);
-  }
-
-  const origin = req.headers.origin;
-
-  // Check if the request origin is in our allowed origins list
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
-  // Set other CORS headers
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-
-  // Handle preflight requests
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  next();
-});
+// Apply the CORS middleware
+app.use(corsMiddleware);
 
 // Get available models
 const getAvailableModels = () => {
