@@ -1,5 +1,8 @@
 // CORS middleware to allow all origins
 const corsMiddleware = (req, res, next) => {
+  // Get the origin from the request
+  const origin = req.headers.origin;
+  
   // Allow requests from any origin
   res.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -12,7 +15,7 @@ const corsMiddleware = (req, res, next) => {
   // Allow specific headers
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type,Authorization"
+    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
   );
 
   // Allow credentials
