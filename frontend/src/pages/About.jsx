@@ -31,7 +31,7 @@ const About = () => {
     {
       name: "Jay Zore",
       image: JayZore,
-      github: "https://github.com/jayzore",
+      github: "https://github.com/Jay9730",
       linkedin: "https://www.linkedin.com/in/jayzore9730",
       description:
         "Backend developer with strong knowledge of Node.js and API development. Built the server-side architecture that powers our prediction system and handles data processing.",
