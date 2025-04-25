@@ -4,8 +4,8 @@
     {
       "src": "app.js",
       "use": "@vercel/node",
-      "config": { 
-        "includeFiles": ["model/**", ".env"],
+      "config": {
+        "includeFiles": ["model/**", ".env", "middleware/**"],
         "buildCommand": "pip install -r vercel-requirements.txt"
       }
     }
@@ -18,7 +18,9 @@
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
-        "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+        "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+        "Content-Security-Policy": "default-src 'self'; font-src 'self' https: data: chrome-extension:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' *; script-src 'self' 'unsafe-inline'",
+        "X-Content-Type-Options": "nosniff"
       }
     }
   ],
