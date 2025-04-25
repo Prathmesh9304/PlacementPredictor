@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
+    "build": "npm run install-all",
     "install-deps": "npm install",
     "setup-python": "pip install -r requirements.txt",
     "install-all": "npm run install-deps && npm run setup-python"
