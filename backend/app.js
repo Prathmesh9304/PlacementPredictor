@@ -63,8 +63,9 @@ app.post("/api/predict", (req, res) => {
     }
 
     // Configure Python options based on environment
-    const pythonPath = process.env.VERCEL ? "python3" : "python";
-    
+    // Use 'python' for both environments as Vercel will map this correctly
+    const pythonPath = "python";
+
     // Convert request body to Python-friendly format
     const options = {
       mode: "json",
@@ -146,6 +147,8 @@ if (!process.env.VERCEL) {
     console.log(
       `[INFO] API endpoint available at http://localhost:${PORT}/api/predict\n`
     );
-    console.log(`[INFO] Available models: ${getAvailableModels().join(", ")}\n`);
+    console.log(
+      `[INFO] Available models: ${getAvailableModels().join(", ")}\n`
+    );
   });
 }
