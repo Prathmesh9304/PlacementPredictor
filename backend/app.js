@@ -62,10 +62,13 @@ app.post("/api/predict", (req, res) => {
       });
     }
 
+    // Configure Python options based on environment
+    const pythonPath = process.env.VERCEL ? "python3" : "python";
+    
     // Convert request body to Python-friendly format
     const options = {
       mode: "json",
-      pythonPath: "python", // or 'python3' depending on your system
+      pythonPath: pythonPath,
       scriptPath: path.join(__dirname, "model"),
       args: [JSON.stringify(req.body)],
     };
@@ -131,12 +134,18 @@ app.get("/", (req, res) => {
   );
 });
 
-app.listen(PORT, () => {
-  console.log(
-    `\n[SUCCESS] Backend server starting at http://localhost:${PORT}`
-  );
-  console.log(
-    `[INFO] API endpoint available at http://localhost:${PORT}/api/predict\n`
-  );
-  console.log(`[INFO] Available models: ${getAvailableModels().join(", ")}\n`);
-});
+// For Vercel serverless deployment, we need to export the app
+module.exports = app;
+
+// Only start the server if not running on Vercel
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(
+      `\n[SUCCESS] Backend server starting at http://localhost:${PORT}`
+    );
+    console.log(
+      `[INFO] API endpoint available at http://localhost:${PORT}/api/predict\n`
+    );
+    console.log(`[INFO] Available models: ${getAvailableModels().join(", ")}\n`);
+  });
+}
