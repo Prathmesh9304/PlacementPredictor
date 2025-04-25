@@ -3,8 +3,8 @@ const corsMiddleware = (req, res, next) => {
   // Get the origin from the request
   const origin = req.headers.origin;
   
-  // Allow requests from any origin
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // Allow requests from the specific origin or use * as fallback
+  res.setHeader("Access-Control-Allow-Origin", origin || "*");
 
   // Allow specific methods
   res.setHeader(
@@ -20,6 +20,12 @@ const corsMiddleware = (req, res, next) => {
 
   // Allow credentials
   res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  // Add Content Security Policy header that allows fonts and other resources
+  res.setHeader(
+    "Content-Security-Policy", 
+    "default-src 'self'; font-src 'self' https: data:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' *"
+  );
 
   // Handle preflight requests
   if (req.method === "OPTIONS") {

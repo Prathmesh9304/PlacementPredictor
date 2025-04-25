@@ -4,7 +4,7 @@
     {
       "src": "app.js",
       "use": "@vercel/node",
-      "config": { "includeFiles": ["model/**", ".env"] }
+      "config": { "includeFiles": ["model/**", ".env", "middleware/**"] }
     }
   ],
   "routes": [
@@ -15,7 +15,8 @@
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET,OPTIONS,PATCH,DELETE,POST,PUT",
-        "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+        "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization",
+        "Content-Security-Policy": "default-src 'self'; font-src 'self' https: data:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; connect-src 'self' *"
       }
     }
   ]
